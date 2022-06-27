@@ -1,0 +1,46 @@
+.account-details-container[b-aj6dgro1vf] {
+  margin: 1em 0;
+  padding: 0.3em 1em 1em 1em;
+  border: 3px solid;
+  border-color: rgba(255, 255, 255, 0.2);
+  font-size: small;
+  min-width: 75px;
+}
+
+.account-details[b-aj6dgro1vf] {
+  display: flex;
+  flex-direction: column;
+  color: white;
+  border: 1px rgba(0, 0, 0, 0.2);
+  align-items: center;
+}
+
+.add-funds-form[b-aj6dgro1vf] {
+  display: grid;
+  grid-template-columns: 65% auto;
+  grid-template-areas: "Funds-Ammount Funds-Button";
+  column-gap: 1em;
+}
+.add-funds-label[b-aj6dgro1vf] {
+  color: white;
+  grid-area: Funds-Label;
+}
+.add-funds-ammount[b-aj6dgro1vf] {
+  grid-area: Funds-Ammount;
+}
+
+.add-funds-button[b-aj6dgro1vf] {
+  grid-area: Funds-Button;
+}
+@media only screen and (max-width: 940px) {
+  .add-funds-form[b-aj6dgro1vf] {
+    grid-template-columns: 100%;
+    row-gap: 1em;
+    grid-template-areas:
+      "Funds-Ammount"
+      "Funds-Button";
+  }
+  .account-details[b-aj6dgro1vf] {
+    align-items: flex-start;
+  }
+}

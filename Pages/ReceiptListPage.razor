@@ -1,0 +1,58 @@
+@using StorePrototype.Data;
+@using StorePrototype.Modals;
+@using StorePrototype.Services;
+@using StorePrototype.Components;
+@inject LoginServices LoginService
+@inject ReceiptList ListReceiptsData
+@implements IDisposable
+@page "/receipts";
+
+<div class="receipt-list-wrapper">
+   <div class="receipt-list-container">
+      @if(string.IsNullOrEmpty(UserName)){
+         <div>
+            Login to see Past Purchases.
+         </div>
+      }
+      else{
+         @if(ListOfReceipts is not null && ListOfReceipts.Count()>0){
+            foreach(var rec in ListOfReceipts){
+               <ReceiptListItem DisplayedReceipt=@rec />
+            }
+         }
+         else{
+            <div>
+               This is where your past purchases will be displayed. When you make some.
+            </div>
+         }
+      }
+   </div>
+</div>
+
+@code{
+   [CascadingParameter]
+   public string? UserName{get;set;}
+
+   List<Receipt>? ListOfReceipts=null;
+
+   public async Task FetchReceipts(string user){
+      if(!string.IsNullOrEmpty(user)){
+         ListOfReceipts=await ListReceiptsData.GetReceiptListOfUser(user);
+         StateHasChanged();
+      }
+   }
+   public Task ResetReceipts(){
+      return Task.Run(()=>ListOfReceipts=null);
+   }
+
+   public void Dispose(){
+      LoginService.LoginEvent-=FetchReceipts;
+      LoginService.LogoutEvent+=ResetReceipts;
+   }
+
+   protected async override Task OnInitializedAsync(){
+      LoginService.LoginEvent+=FetchReceipts;
+      LoginService.LogoutEvent+=ResetReceipts;
+      if(UserName is not null) await FetchReceipts(UserName);
+   }
+}

@@ -1,0 +1,69 @@
+@using StorePrototype.Data;
+@using StorePrototype.Modals;
+@using StorePrototype.Services;
+@inject StoreItems Items;
+@inject Carts CartsData;
+@inject ListUpdateService ListUpdater
+@if(Item is not null){
+   <div id=@($"item-{Item.ItemCode}") class="item-wrapper">
+      <div class="item-container card">
+         <img class="card-img-top item-image" src=@(Item.ImageLocation) alt=@($"Image of {Item.Name}")>
+         <div class="name-price-box">
+            <h5 class="card-title">@Item.Name</h5>
+            <h6 class="card-title">@DisplayAsPrice(Item.Price)</h6>
+         </div>
+         <p class="card-text">@Item.Description</p>
+         @if(Item.StockCount==0){
+            <p class="card-text">Item Out Of Stock</p>
+         }
+         else{
+            <p class="card-text">Stock: @Item.StockCount</p>
+         }
+         <form id=@($"item-{Item.ItemCode}-form") class="item-form" >
+            <input class="item-input" type="number" @bind=@PurchaseNumber min=1 max=@Item.StockCount disabled=@(Item.StockCount==0)/>
+            <div class="button-container">
+               <button class="btn btn-secondary item-button" type="button" @onclick=@( ()=> IncrementPurchaseNumber(1)) disabled=@(Item.StockCount==0)>+</button>
+               <button class="btn btn-secondary item-button" type="button" @onclick=@( ()=> IncrementPurchaseNumber(-1)) disabled=@(Item.StockCount==0)>-</button>
+            </div>
+            <button type="button" class="btn btn-primary" disabled=@(Item.StockCount==0) @onclick=@AddItemToCart>Add</button>
+         </form>
+      </div>
+   </div>
+}
+
+@code{
+   [Parameter]
+   public StoreItem? Item{get;set;}
+   [CascadingParameter]
+   public string UserName{get;set;}="";
+
+   int PurchaseNumber=1;
+
+   Cart? cart;
+
+   private void IncrementPurchaseNumber(int ammount){
+      var newNumber=PurchaseNumber+ammount;
+      if(Item is not null && newNumber>=0 && newNumber<=Item.StockCount){
+         PurchaseNumber+=ammount;
+      }
+   }
+
+   private string DisplayAsPrice(double price){
+      string s=(price/100.0).ToString();
+      //Number ends in 00
+      if(s.IndexOf(".")==-1)s=s+".00";
+      //number ends in 0
+      else if(s.IndexOf(".")==s.Count()-2)s=s+"0"; 
+      return $"$ {s}";
+   }
+
+   private async void AddItemToCart(){
+      cart=await CartsData.GetCart(UserName);
+      if(cart is not null && Item is not null){
+         CartsData.AddItemToCart(UserName,Item.ItemCode,PurchaseNumber);
+      }
+      if(Item is not null) Item=await Items.GetItemAsync(Item.ItemCode);
+      await ListUpdater.AddItem();
+      StateHasChanged();
+   }
+}

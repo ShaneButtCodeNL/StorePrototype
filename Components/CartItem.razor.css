@@ -1,0 +1,123 @@
+.cart-item-container {
+  position: relative;
+  display: grid;
+  grid-template-rows: max-content max-content max-content;
+  grid-template-columns: auto 1fr auto;
+  gap: 1em;
+  grid-template-areas:
+    "item-image item-name item-count"
+    "item-image item-desc item-buttons"
+    "item-image item-price item-buttons";
+}
+.cart-item-container::after {
+  position: absolute;
+  content: "";
+  background-color: rgba(0, 0, 0, 0.2);
+  height: 2px;
+  width: 90%;
+  bottom: -1em;
+  left: 5%;
+}
+.cart-item-container:last-child {
+  padding-bottom: 1em;
+}
+.cart-item-container:last-child::after {
+  display: none;
+}
+.cart-item-image {
+  grid-area: item-image;
+}
+.cart-item-description {
+  grid-area: item-desc;
+}
+.cart-item-price {
+  grid-area: item-price;
+}
+.cart-item-count {
+  grid-area: item-count;
+}
+.cart-item-title {
+  grid-area: item-name;
+}
+.cart-item-form {
+  grid-area: item-buttons;
+  display: grid;
+  grid-template-columns: 10em max-content;
+  grid-template-rows: min-content min-content;
+  gap: 0.5em;
+  grid-template-areas:
+    "item-input item-remove-button"
+    "item-delete-button item-delete-button";
+}
+.cart-item-input {
+  grid-area: item-input;
+}
+.cart-item-remove {
+  grid-area: item-remove-button;
+}
+.cart-item-delete {
+  grid-area: item-delete-button;
+}
+@media screen and (max-width: 880px) {
+  .cart-item-container {
+    grid-template-columns: min-content auto 1fr;
+    line-height: 1.4;
+  }
+  .cart-item-container * {
+    font-size: 92%;
+  }
+
+  .cart-item-form {
+    grid-template-columns: calc(13vw - 0.3em) calc(13vw - 0.3em);
+  }
+}
+@media screen and (max-width: 600px) {
+  .cart-item-container {
+    grid-template-areas:
+      "item-image item-name"
+      "item-image item-desc"
+      "item-image item-price"
+      "item-count item-count"
+      "item-buttons item-buttons";
+  }
+}
+@media screen and (max-width: 570px) {
+  .cart-item-container {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "item-image item-name item-count"
+      "item-image item-desc item-buttons"
+      "item-image item-price item-buttons";
+  }
+  .cart-item-container * {
+    font-size: 96%;
+  }
+  .cart-item-form {
+    grid-template-columns: calc(20vw - 0.3em) calc(20vw - 0.3em);
+  }
+}
+@media screen and (max-width: 350px) {
+  .cart-item-container {
+    grid-template-areas:
+      "item-image item-name"
+      "item-image item-desc"
+      "item-image item-price"
+      "item-count item-count"
+      "item-buttons item-buttons";
+  }
+  input {
+    max-width: 7em;
+  }
+  .cart-item-form {
+    grid-template-columns: auto 1fr;
+  }
+}
+@media screen and (max-width: 300px) {
+  .cart-item-form {
+    grid-template-columns: auto;
+    grid-template-areas:
+      "item-input"
+      "item-remove-button"
+      "item-delete-button";
+  }
+}

@@ -1,0 +1,218 @@
+﻿@using StorePrototype.Components;
+@using StorePrototype.Data;
+@using StorePrototype.Services;
+@inject Carts CartsData
+@inject ListUpdateService ListUpdater
+@inherits LayoutComponentBase
+@inject LoginServices loginServices
+@inject NavigationManager NavManager
+@implements IDisposable
+
+
+<PageTitle>StorePrototype</PageTitle>
+<CascadingValue Value=@UserName>
+    <div class="page">
+        <div class=@($"sidebar-wrapper {(IsOut?"show":"hide")}")  @onclick=@(()=>IsOut=false) tabindex=@((IsOut?"0":"-1"))>
+            <div class="sidebar" @onclick:stopPropagation="true" >
+                <button type="button" class="close-debug-button" @onclick=@(()=>IsOut=false) tabindex=@((IsOut?"0":"-1"))><i class="fa-solid fa-xmark"></i></button>
+                <h1 style="color:white;margin:0 auto;width:min-content;">
+                    Debug
+                </h1>
+                <Debug IsOut=@IsOut/>
+            </div>
+        </div>
+    
+        <main>
+            <header class="store-headder">
+                <div id="user-login-container">
+                <form class="user-login-form" style="display: flex;">
+                    @if(UserName is null){
+                        <input class="input flex-username" type="text" placeholder="UserName" @bind=@UserInput maxlength="20" />
+                        <button class="button" type="button" @onclick=@loginServices.Login >Login</button>
+                    }
+                    else{
+                        <div class="flex-username" style="color:white;display:grid;place-items:center;">
+                            <div style="height:fit-content;margin:auto;">
+                                <i class="fa-solid fa-user-check my-icon"></i>
+                                <span style="font-size: 0.8em;">
+                                    @UserName
+                                </span>
+                            </div>
+                        </div>
+                        <button class="button" type="button" @onclick=@loginServices.Logout >LogOut</button>
+                    }
+                </form>
+                </div>
+                <div class="nav-container">
+                    <nav class="large-screen-nav">
+                        @if(Page != ""){
+                            <a href="/">
+                                <div class="nav-link-wrapper hide">
+                                    <div style="text-align: center;">
+                                        <i class="fa-solid fa-house-chimney my-icon"></i>
+                                    </div>
+                                    <div class="link-text">Home</div>
+                                </div>
+                            </a>
+                        }
+                        @if(Page != "cart"){
+                            <a href="/cart">
+                                <div count=@ItemCount class=@($"nav-link-wrapper { (string.IsNullOrEmpty(ItemCount) ? "hide":"show") }")>
+                                    <div style="text-align: center;">
+                                        <i class="fa-solid fa-cart-shopping my-icon"></i>
+                                    </div>
+                                    <div class="link-text">Cart</div>
+                                </div>
+                            </a>
+                        }
+                        @if(Page !="receipts"){
+                            <a href="/receipts">
+                                <div count=@ItemCount class="nav-link-wrapper hide">
+                                    <div style="text-align: center;">
+                                        <i class="fa-solid fa-receipt my-icon"></i>
+                                    </div>
+                                    <div class="link-text">Receipts</div>
+                                </div>
+                            </a>
+                        }
+                        <div class="nav-link-wrapper hide" @onclick=@Slide>
+                            <div style="text-align: center;">
+                                <i class="fa-solid fa-screwdriver-wrench my-icon"></i>
+                            </div>
+                            <div class="link-text">Debug</div>
+                        </div>
+                    </nav>
+                    <nav class="small-screen-nav" @onclick=@(()=>{
+                        ShowDropDown=!ShowDropDown;
+                        StateHasChanged();
+                    })>
+                        <div class="drop-down-nav-div" >
+                            <i class="fa-solid fa-bars my-icon"></i>
+                            <div class=@($"drop-down-nav-div-content {(ShowDropDown?"show":"hide")}")>
+                                @if(Page != ""){
+                                    <a href="/">
+                                        <div class="nav-link-wrapper hide">
+                                            <div style="text-align: center;">
+                                                <i class="fa-solid fa-house-chimney my-icon"></i>
+                                            </div>
+                                            <div class="link-text">Home</div>
+                                        </div>
+                                    </a>
+                                }
+                                @if(Page != "cart"){
+                                    <a href="/cart">
+                                        <div count=@ItemCount class=@($"nav-link-wrapper { (string.IsNullOrEmpty(ItemCount) ? "hide":"show") }")>
+                                            <div style="text-align: center;">
+                                                <i class="fa-solid fa-cart-shopping my-icon"></i>
+                                            </div>
+                                            <div class="link-text">Cart</div>
+                                        </div>
+                                    </a>
+                                }
+                                @if(Page !="receipts"){
+                                    <a href="/receipts">
+                                        <div count=@ItemCount class="nav-link-wrapper hide">
+                                            <div style="text-align: center;">
+                                                <i class="fa-solid fa-receipt my-icon"></i>
+                                            </div>
+                                            <div class="link-text">Receipts</div>
+                                        </div>
+                                    </a>
+                                }
+                                <div class="nav-link-wrapper hide" @onclick=@Slide>
+                                    <div style="text-align: center;">
+                                        <i class="fa-solid fa-screwdriver-wrench my-icon"></i>
+                                    </div>
+                                    <div class="link-text">Debug</div>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </header>
+            <div class="page-main">
+                @Body
+            </div>
+        </main>
+    </div>
+</CascadingValue>
+@code{
+
+    string? UserName=null;
+
+    string UserInput="";
+
+    bool IsOut=false;
+    bool ShowDropDown=false;
+    string Page="Start";
+
+    string ItemCount="";
+
+    string styleString="{}";
+    private void Slide(){
+        IsOut=!IsOut;
+        styleString=IsOut?"flex-grow:1;":"flex-grow:0;";
+        StateHasChanged();
+    }
+    
+    public async Task Login(){
+        UserName=UserInput;
+        loginServices.UserName=UserInput;
+        var cart=await CartsData.GetCart(UserInput);
+        if(cart is null){
+            CartsData.MakeCart(UserInput);
+        }
+        await GetCartItemCount();
+        StateHasChanged();
+    }
+
+    public async Task LogOut(){
+        //Remove cart if empty 
+        if(UserName is null)return;
+        var cart = await CartsData.GetCart(UserName);
+        if(cart is not null){
+            var cartSize=cart.Contents.Count();
+            if(cartSize==0)CartsData.RemoveCart(cart.Id);
+        }
+        loginServices.UserName=null;
+        UserName=null;
+        UserInput="";
+        ItemCount="";
+        StateHasChanged();
+    }
+
+    public void GetPage(Object? sender,LocationChangedEventArgs e){
+        Page=NavManager.ToBaseRelativePath(NavManager.Uri);
+        //GetCartItemCount().RunSynchronously();
+        StateHasChanged();
+    }
+    public async Task GetCartItemCount(){
+        if(UserName is not null){
+            var cart =await CartsData.GetCart(UserName);
+            if(cart is not null){
+                var count=cart.CountStockInCart();
+                if(count<=0)ItemCount="";
+                else if( count>=100)ItemCount="99+";
+                else ItemCount=count.ToString();
+                StateHasChanged();
+            }
+        }
+    }
+
+    public void Dispose(){
+        loginServices.MainLoginEvent-=Login;
+        loginServices.MainLogoutEvent-=LogOut;
+        NavManager.LocationChanged-=GetPage;
+        ListUpdater.AddItemEvent-=GetCartItemCount;
+
+    }
+
+    protected async override Task OnInitializedAsync(){
+      loginServices.MainLoginEvent+=Login;
+      loginServices.MainLogoutEvent+=LogOut;
+      NavManager.LocationChanged+=GetPage;
+      Page=NavManager.ToBaseRelativePath(NavManager.Uri);
+      ListUpdater.AddItemEvent+=GetCartItemCount;
+      await GetCartItemCount();
+   }
+}

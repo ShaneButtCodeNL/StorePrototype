@@ -1,0 +1,27 @@
+#add-account-form[b-x6omlhi6fk] {
+  display: grid;
+  overflow: hidden;
+  grid-template-columns: 65% auto;
+  column-gap: 1em;
+  padding: 0 1em;
+  grid-template-areas: "Add-Account-Input Add-Account-Button";
+}
+.add-account-label[b-x6omlhi6fk] {
+  color: white;
+  grid-area: Add-Account-Label;
+}
+.add-account-input[b-x6omlhi6fk] {
+  grid-area: Add-Account-Input;
+}
+.add-account-button[b-x6omlhi6fk] {
+  grid-area: Add-Account-Button;
+}
+@media only screen and (max-width: 600px) {
+  #add-account-form[b-x6omlhi6fk] {
+    row-gap: 1em;
+    grid-template-columns: 100%;
+    grid-template-areas:
+      "Add-Account-Input"
+      "Add-Account-Button";
+  }
+}

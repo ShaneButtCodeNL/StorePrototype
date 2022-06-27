@@ -1,0 +1,61 @@
+@using StorePrototype.Modals;
+@using StorePrototype.Data;
+@using StorePrototype.Components;
+@inject ReceiptList ListOfReceipts
+@page "/receipt/{ID?}"
+
+<div class="receipt-wrapper">
+   <div class="receipt-container">
+      @if(DisplayedReceipt is not null){
+         <dl class="receipt-info-list">
+            <dt>Receipt ID:</dt>
+            <dd>@DisplayedReceipt.Id</dd>
+            <dt>Date:</dt>
+            <dd>@DisplayedReceipt.ReceiptDate.ToString()</dd>
+            <dt>Username:</dt>
+            <dd>@DisplayedReceipt.UserName</dd>
+            <dt>Order Status:</dt>
+            <dd>@DisplayedReceipt.Status</dd>
+            @if(DisplayedReceipt.Discount>0){
+               <dt>You Saved:</dt>
+               <dd>@DisplayAsPrice(DisplayedReceipt.Discount)</dd>
+            }
+            <dt>Tax:</dt>
+            <dd>@DisplayAsPrice(DisplayedReceipt.TaxedAmmount)</dd>
+            <dt>Shipping:</dt>
+            <dd>@DisplayAsPrice(DisplayedReceipt.Shipping)</dd>
+            <dt>SubTotal:</dt>
+            <dd>@DisplayAsPrice(DisplayedReceipt.SubTotal)</dd>
+            <dt>Total:</dt>
+            <dd>@DisplayAsPrice((DisplayedReceipt.SubTotal + DisplayedReceipt.TaxedAmmount + DisplayedReceipt.Shipping))</dd>
+         </dl>
+         <h3>Items:</h3>
+         <div class="receipt-item-list">
+            @if(DisplayedReceipt.Items is not null){
+               @foreach (var item in DisplayedReceipt.Items){
+                  <ReceiptItem Item=item.Item1 ItemCount=item.Item2 />
+               }
+            }
+         </div>
+      }
+   </div>
+</div>
+
+@code{
+   [Parameter]
+   public string? ID{get;set;}
+   public Receipt? DisplayedReceipt;
+   
+   private string DisplayAsPrice(double price){
+      string s=(price/100.0).ToString();
+      //Number ends in 00
+      if(s.IndexOf(".")==-1)s=s+".00";
+      //number ends in 0
+      else if(s.IndexOf(".")==s.Count()-2)s=s+"0"; 
+      return $"$ {s}";
+   }
+   protected async override Task OnInitializedAsync(){
+      if(ID is not null) DisplayedReceipt=await ListOfReceipts.GetReceipt(int.Parse(ID));
+   }
+
+}

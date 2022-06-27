@@ -1,0 +1,30 @@
+@using StorePrototype.Modals;
+@using StorePrototype.Data;
+@using StorePrototype.Services;
+@inject StoreItems Items;
+@inject ListUpdateService ListUpdater;
+
+<div class="item-controls-wrapper">
+   <label class="item-control-label">Add Items:</label>
+   <form id="item-control-form">
+      <input class="item-control-input" type="number" min=0 max=@(MaxItemCount-ItemCount) @bind=@AddAmmount placeholder="0" tabindex=@((IsOut?"0":"-1"))/>
+      <button class="item-control-button" type="button" @onclick=@AddItems tabindex=@((IsOut?"0":"-1"))>Add</button>
+   </form>
+</div>
+
+@code{
+   [Parameter]
+   public bool IsOut{get;set;}
+   int ItemCount=0;
+   const int MaxItemCount=100;
+   int AddAmmount=0;
+
+   private async void AddItems(){
+      Items.AddRandomItems(AddAmmount);
+      AddAmmount=0;
+      await ListUpdater.Update();
+   }
+   protected async override Task OnInitializedAsync(){
+      ItemCount=(await Items.GetStoreItemsAsync()).Count();
+   }
+}

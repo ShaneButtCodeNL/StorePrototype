@@ -1,0 +1,49 @@
+.eye-wrapper {
+  display: grid;
+  place-content: center;
+  background-color: rgba(110, 110, 110, 0.5);
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+.eye-container {
+  position: relative;
+  display: flex;
+  gap: 1em;
+  justify-content: center;
+}
+.eye {
+  position: relative;
+  width: 50px;
+  height: 100px;
+  background-color: white;
+  border-radius: 50%;
+}
+.pupil {
+  position: absolute;
+  top: 45%;
+  right: 80%;
+  width: 20%;
+  height: 10%;
+  background-color: black;
+  border-radius: 50%;
+  animation-name: eyes-move;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+@keyframes eyes-move {
+  0% {
+    right: 80%;
+  }
+  20% {
+    right: 80%;
+  }
+  80% {
+    right: 0%;
+  }
+  100% {
+    right: 0%;
+  }
+}

@@ -1,0 +1,57 @@
+﻿@using StorePrototype.Modals;
+@using StorePrototype.Data;
+@using StorePrototype.Components;
+@using StorePrototype.Services;
+@inject StoreItems Items
+@inject ListUpdateService ListUpdater
+@implements IDisposable
+@page "/"
+
+<div class=@($"page-cover {(Initialized?"hidden":"show")}")>
+   <LoadingEyes />
+</div>
+@if(Initialized==true){
+<div class="store-container">
+   @if(StoreItemList is not null){
+      @foreach (var item in StoreItemList){
+         <StoreItemCard Item=@item />
+      }
+   }
+   else{
+      <div class="no-items found">
+         <h1>Something Happened and we couldn't find Anything.</h1>
+         The monkeys will get right on this.
+      </div>
+   }
+</div>
+}
+
+
+@code{
+   bool Initialized=false;
+   List<StoreItem>? StoreItemList=null;
+
+   public async Task RecallItems(){
+      if(Items is not null) StoreItemList= await Items.GetStoreItemsAsync();
+      StateHasChanged();
+   }
+
+   public void Dispose()=>ListUpdater.ListChange-=RecallItems;
+
+   public override async Task SetParametersAsync(ParameterView parameters){
+      Initialized=false;
+      
+      await base.SetParametersAsync(parameters);
+   }
+
+   protected async override Task OnInitializedAsync(){
+      ListUpdater.ListChange+=RecallItems;
+      if(Items is not null) StoreItemList=await  Items.GetStoreItemsAsync();
+      else StoreItemList =null;
+   }
+
+   protected override void OnAfterRender(bool firstRender){
+      Initialized=true;
+   }
+   
+}

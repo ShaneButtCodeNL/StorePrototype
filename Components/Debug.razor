@@ -1,0 +1,50 @@
+@using StorePrototype.Modals;
+@using StorePrototype.Data;
+@using StorePrototype.Services;
+@inject Accounts AccData;
+@inject DebugAccountService debugAccountServices
+@implements IDisposable
+
+@namespace StorePrototype.Components
+
+<div class="debug-wrapper">
+   <label class="add-account-label">Add Account</label>
+   <form id=add-account-form>
+      <input class="add-account-input" type="number" min=0 max=10000 @bind=@NewAccountFunds placeholder="$0.00" tabindex=@((IsOut?"0":"-1")) />
+      <button class="add-account-button" type="button" @onclick=@MakeAccount tabindex=@((IsOut?"0":"-1")) >Add</button>
+   </form>
+   @if(AccDetails is not null){
+      @foreach (var account in AccDetails){
+         <AccountDetails account=@account IsOut=@IsOut/>
+      }
+   }
+   <ItemControls IsOut=@IsOut/>
+</div>
+
+
+@code{
+   [Parameter]
+   public bool IsOut{get;set;}
+   List<Account>? AccDetails;
+   double NewAccountFunds=0;
+
+   private async void MakeAccount(){
+      AccData.MakeAccount((int)(NewAccountFunds*100));
+      AccDetails=await AccData.GetListOfAccountDetails();
+      StateHasChanged();
+   }
+
+   public async Task GetAccounts(){
+      AccDetails=await AccData.GetListOfAccountDetails();
+      StateHasChanged();
+   }
+    public void Dispose(){
+      debugAccountServices.GetData-=GetAccounts;
+    }
+
+   protected override async Task OnInitializedAsync(){
+      debugAccountServices.GetData+=GetAccounts;
+      await GetAccounts();
+   }
+   
+}

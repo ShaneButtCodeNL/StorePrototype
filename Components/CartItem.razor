@@ -1,0 +1,90 @@
+@using StorePrototype.Modals;
+@using StorePrototype.Data;
+@using StorePrototype.Services;
+@inject Carts CartData
+@inject StoreItems StoreItemsData
+@inject LoginServices loginServices
+@inject ListUpdateService ListUpdater
+@if(Item is not null){
+   <div class=cart-item-container>
+      <img class=cart-item-image src=@Item.ImageLocation alt=@($"An Image of {Item.Name}.")/>
+      <div class=cart-item-title>
+         <h3><u>@Item.Name</u></h3>
+      </div>
+      <div class=cart-item-description>
+         @Item.Description;
+      </div>
+      <div class=cart-item-price>
+         Price : @DisplayAsPrice(Item.Price)
+      </div>
+      <div class=cart-item-count>
+         Number in cart : @ItemCount
+      </div>
+      <form class=cart-item-form id=@($"cart-item-form-{Item.ItemCode}")>
+         <input class="cart-item-input input" type="number" min=1 max=@(NumberInCart) @bind=@RemoveCount/>
+         <button class="cart-item-remove button" type="button" @onclick=@RemoveFromCart>Remove</button>
+         <button class="cart-item-delete button" type="button" @onclick=@DeleteFromCart>Delete</button>
+      </form>
+
+   </div>
+}
+
+@code{
+   [CascadingParameter]
+   public string? UserName{get;set;}
+   [Parameter]
+   public int ItemCount{get;set;}=-1;
+   [Parameter]
+   public int ItemCode{get;set;}=-1;
+   [Parameter]
+   public Action? GetCart{get;set;}
+
+   int RemoveCount=1;
+   StoreItem? Item;
+
+   int NumberInCart=-1;
+
+   private string DisplayAsPrice(double price){
+      string s=(price/100.0).ToString();
+      //Number ends in 00
+      if(s.IndexOf(".")==-1)s=s+".00";
+      //number ends in 0
+      else if(s.IndexOf(".")==s.Count()-2)s=s+"0"; 
+      return $"$ {s}";
+   }
+
+   private async void RemoveFromCart(){
+      if(UserName is null || ItemCount==-1 || ItemCode==-1 )return;
+      CartData.RemoveItemFromCart(UserName,ItemCode,RemoveCount);
+      Item = await StoreItemsData.GetItemAsync(ItemCode);
+      if(GetCart is not null) GetCart();
+      await ListUpdater.AddItem();
+      StateHasChanged();
+   }
+
+   private async void DeleteFromCart(){
+      if(UserName is null || ItemCount==-1 || ItemCode==-1 )return;
+      CartData.DeleteItemFromCart(UserName,ItemCode);
+      Item = await StoreItemsData.GetItemAsync(ItemCode);
+      if(GetCart is not null) GetCart();
+      await ListUpdater.AddItem();
+      StateHasChanged();
+   }
+
+   private async void Setup(){
+      if(UserName is not null){
+         var cart=await CartData.GetCart(UserName);
+         if(cart is not null){
+            var itemPair=cart.Contents.Find(v=>v.Item1==ItemCode);
+            if(!itemPair.Equals(default)){
+               NumberInCart =itemPair.Item2;
+            }
+         }
+      }
+   }
+
+   protected async override Task OnInitializedAsync(){
+      Item = await StoreItemsData.GetItemAsync(ItemCode);
+      Setup();
+   }
+}

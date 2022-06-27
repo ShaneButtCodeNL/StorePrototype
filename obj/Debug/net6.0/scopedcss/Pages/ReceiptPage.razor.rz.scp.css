@@ -1,0 +1,23 @@
+.receipt-wrapper[b-a9o8wlx2ka] {
+  height: 100%;
+  overflow: auto;
+  padding: 1em;
+}
+.receipt-info-list[b-a9o8wlx2ka] {
+  display: grid;
+  grid-template-columns: auto auto;
+  width: fit-content;
+  column-gap: 1em;
+}
+.receipt-item-list[b-a9o8wlx2ka] {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1em;
+  max-width: 930px;
+}
+@media screen and (max-width: 300px) {
+  .receipt-info-list[b-a9o8wlx2ka] {
+    grid-template-columns: auto;
+  }
+}

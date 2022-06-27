@@ -1,0 +1,175 @@
+@using StorePrototype.Data;
+@using StorePrototype.Modals;
+@using StorePrototype.Services;
+@inject Carts CartData
+@inject LoginServices loginServices
+@inject Accounts AccountsData
+@inject NavigationManager NavManager
+@inject DebugAccountService debugAccountService
+@inject ReceiptList ListOfReceipts
+@inject StoreItems ItemsData
+@inject ListUpdateService ListUpdater
+@implements IDisposable
+@page "/checkout"
+
+<div class="checkout-wrapper">
+   <div class="checkout-container">
+      <div class="order-details">
+         Order Details
+         <dl>
+            <dt>
+               Total :
+            </dt>
+            <dd>
+               @DisplayAsPrice(Total)
+            </dd>
+         </dl>
+      </div>
+      <div class="account-details">
+         Account Details
+         @if(UserName is null || UserName==""){
+            <div>
+               Not logged in
+            </div>
+
+         }
+         else{
+            @if(UserAccount is null && Model is not null){
+               <EditForm Model=@Model OnValidSubmit=@GetAccount>
+                  <DataAnnotationsValidator />
+                  <ValidationSummary />
+                  <div class="form-inner">
+                     <label>Name:</label>
+                     <InputText id="account-name-input" class="input acc-input" @bind-Value="Model.Name" />
+                     <label>Account Number:</label>
+                     <InputText id="account-num-input" class="input acc-input" @bind-Value="Model.AccountNumber" />
+                     <button class="button" type="submit">Continue</button>
+                  </div>
+               </EditForm>
+            }
+            @if(UserAccount is not null){
+               <div class="account-control-div">
+                  <dl>
+                     <dt>Account Name:</dt>
+                     <dd>@UserAccount.Name</dd>
+                  </dl>
+                  <button type="button" class="button" @onclick=@ResetAccount>Forget Account</button>
+                  <button type="button" class="button" @onclick=@MakePurchase>Confirm Purchase</button>
+               </div>
+            }
+         }
+      </div>
+   </div>
+</div>
+
+@code{
+   [CascadingParameter]
+   public string UserName{get;set;}="";
+   public Cart? ThisCart=null;
+   public double Total=0;
+   private double SubTotal=0;
+   private double Discount=0;
+   private double TaxedAmmount=0;
+   private AccountLoginModel? Model;
+
+   public Account? UserAccount=null;
+
+   public async Task GetCart(string user){
+      var cart=await CartData.GetCart(user);
+      if(cart is not null){
+         ThisCart=cart;
+         var costs= await ThisCart.CartCost();
+         Total = costs.Item3+ThisCart.Shipping;
+         Model=new();
+      }
+      StateHasChanged();
+   }
+
+   private void ResetAccount(){
+      UserAccount=null;
+      Model=new();
+   }
+
+   public async Task<int?> WriteReceipt(){
+      if(ThisCart is null) return null;
+      List<(StoreItem,int)> List=new();
+      foreach(var entry in ThisCart.Contents){
+         var item=await ItemsData.GetItemAsync(entry.Item1);
+         if(item is not null) List.Add( (item,entry.Item2) );
+      }
+      if(UserAccount is not null){
+         Receipt rec=new(){
+            UserName=UserName,
+            AccountName=UserAccount.Name,
+            ReceiptDate=DateTime.Now,
+            Items=List,
+            SubTotal=SubTotal,
+            Discount=Discount,
+            TaxedAmmount=TaxedAmmount,
+            Shipping=ThisCart.Shipping,
+            Status="Pending"
+         };
+         return await ListOfReceipts.AddReceipt(rec);
+      }
+      return null;
+   }
+
+   private async Task MakePurchase(){
+      if(UserAccount is not null && UserName is not null){
+         var res=await AccountsData.MakePurchase(UserAccount.AccountNumber,(int)(Total));
+         if(res){
+            var recId=await WriteReceipt();
+            await debugAccountService.GetAccountData();
+            await CartData.RemoveItemsFromCartWithoutReplacing(UserName);
+            await ListUpdater.AddItem();
+            if(recId is not null)NavManager.NavigateTo($"/receipt/{recId}");
+         }
+      }
+   }
+
+   public async Task GetAccount(){
+      if(Model is not null && Model.AccountNumber is not null){
+         var acc=await AccountsData.GetAccountAsync(Model.Name,int.Parse(Model.AccountNumber));
+         if(acc is not null){
+            UserAccount = acc;
+         }
+      }
+   }
+   private async Task ResetCart(){
+      await Task.Run(()=>{
+         ThisCart=null;
+         Total=0;
+         Model=null;
+         UserAccount=null;
+      });
+      StateHasChanged();
+   }
+
+   public void Dispose(){
+      loginServices.LoginEvent-=GetCart;
+      loginServices.LogoutEvent-=ResetCart;
+   }
+
+   private string DisplayAsPrice(double price){
+      string s=(price/100.0).ToString();
+      //Number ends in 00
+      if(s.IndexOf(".")==-1)s=s+".00";
+      //number ends in 0
+      else if(s.IndexOf(".")==s.Count()-2)s=s+"0"; 
+      return $"$ {s}";
+   }
+
+   protected async override Task OnInitializedAsync(){
+      Model=new();
+      await GetCart(UserName);
+      loginServices.LoginEvent+=GetCart;
+      loginServices.LogoutEvent+=ResetCart;
+      if(ThisCart is not null){
+         var CartCosts=await ThisCart.CartCost();
+         TaxedAmmount=CartCosts.Item2;
+         Discount=CartCosts.Item1;
+         SubTotal=CartCosts.Item3;
+         Total=(SubTotal-Discount)+TaxedAmmount+ThisCart.Shipping;
+      }
+   }
+}

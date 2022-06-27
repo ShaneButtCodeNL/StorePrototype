@@ -1,0 +1,58 @@
+@using StorePrototype.Modals;
+@inject NavigationManager NavManager
+
+@if(DisplayedReceipt is not null){
+   <div id=@($"receipt-{DisplayedReceipt.Id}-wrapper") class="receipt-wrapper">
+      <div id=@($"receipt-{DisplayedReceipt.Id}-container") class="receipt-container">
+         <dl class="receipt-data-list">
+            <dt class="id-title">
+               Receipt ID :
+            </dt>
+            <dd class="id-desc">
+               @DisplayedReceipt.Id
+            </dd>
+            <dt class="acc-title">
+               Account :
+            </dt>
+            <dd class="acc-desc">
+               @DisplayedReceipt.AccountName
+            </dd>
+            <dt class="date-title">
+               Date :
+            </dt>
+            <dd class="date-desc">
+               @DisplayedReceipt.ReceiptDate.ToString()
+            </dd>
+            <dt class="total-title">
+               Total :
+            </dt>
+            <dd class="total-desc">
+               @(DisplayAsPrice(DisplayedReceipt.TaxedAmmount+DisplayedReceipt.SubTotal-DisplayedReceipt.Discount+DisplayedReceipt.Shipping))
+            </dd>
+            <dt class="status-title">
+               Status :
+            </dt>
+            <dd class="status-desc">
+               @DisplayedReceipt.Status
+            </dd>
+         </dl>
+         <div class="receipt-list-button-container">
+            <button class="button" onclick=@( ()=>NavManager.NavigateTo($"{NavManager.BaseUri}receipt/{DisplayedReceipt.Id}") )>Go To Receipt</button>
+         </div>
+      </div>
+   </div>
+}
+
+@code{
+   [Parameter]
+   public Receipt? DisplayedReceipt{get;set;}
+
+   private string DisplayAsPrice(double price){
+      string s=(price/100.0).ToString();
+      //Number ends in 00
+      if(s.IndexOf(".")==-1)s=s+".00";
+      //number ends in 0
+      else if(s.IndexOf(".")==s.Count()-2)s=s+"0"; 
+      return $"$ {s}";
+   }
+}

@@ -1,0 +1,32 @@
+.item-controls-wrapper {
+  border: 3px solid;
+  border-color: rgba(255, 255, 255, 0.2);
+  margin: 1em 0;
+  padding: 0.2em 1em 1em 1em;
+}
+#item-control-form {
+  display: grid;
+  grid-template-columns: 65% auto;
+  column-gap: 1em;
+  grid-template-areas: "item-control-input item-control-button";
+}
+.item-control-label {
+  grid-area: item-control-label;
+  color: white;
+}
+.item-control-input {
+  grid-area: item-control-input;
+}
+.item-control-button {
+  grid-area: item-control-button;
+}
+
+@media only screen and (max-width: 750px) {
+  #item-control-form {
+    row-gap: 1em;
+    grid-template-columns: 100%;
+    grid-template-areas:
+      "item-control-input"
+      "item-control-button";
+  }
+}

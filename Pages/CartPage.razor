@@ -1,0 +1,215 @@
+@using StorePrototype.Modals;
+@using StorePrototype.Data;
+@using StorePrototype.Components;
+@using StorePrototype.Services;
+@inject Carts CartData
+@inject LoginServices loginServices
+@inject ListUpdateService ListUpdater
+@implements IDisposable
+@page "/cart";
+
+<div class="cart-page-container">
+   <div class="cart-item-display">
+      @if(TheCart is not null){
+         @if(TheCart.Contents.Count()>0){
+            @foreach ((int ,int ) entry in TheCart.Contents){
+               <CartItem ItemCount=@(entry.Item2) ItemCode=@(entry.Item1) GetCart=@(async ()=>await GetCart(UserName)) />
+            }
+         }
+         else{
+            <p>
+               <h3>Your Cart is Empty. Why don't you look around and spend some money.</h3>
+            </p>
+            <a href="/">
+               <h2>Go Shopping</h2>
+            </a>
+         }
+      }
+      else{
+         <p>
+            Something went wrong. No cart found.
+         </p>
+         <p>
+            Don't Panick, party on.
+         </p>
+         <a href="/">
+            <h2>Go Shopping</h2>
+         </a>
+      }
+   </div>
+   <div class="cart-cost-display-wrapper">
+      <div class="cart-cost-display-container">
+         @if(TheCart is not null){
+            @if(TheCart.Contents.Count()>0){
+               <dl class=cart-calc>
+                  <dt>
+                     SubTotal :
+                  </dt>
+                  <dd>
+                     @DisplayAsPrice(SubTotal)
+                  </dd>
+                  <dt>
+                     Discount :
+                  </dt>
+                  <dd>
+                     @DisplayAsPrice(Discount)
+                  </dd>
+                  <dt>
+                     Tax :
+                  </dt>
+                  <dd>
+                     @DisplayAsPrice(TaxedAmmount)
+                  </dd>
+                  <dt>
+                     Shipping :
+                  </dt>
+                  <dd>
+                     <select name="shipping-select" id="shipping-select" class="select"  @onchange=UpdateShipping >
+                        @foreach (var item in ShippingList){
+                           if(TheCart.Shipping==item.Item2){
+                              <option value=@item.Item2 selected>
+                                 @item.Item1 : @DisplayAsPrice(item.Item2)
+                              </option>
+                           }
+                           else{
+                              <option value=@item.Item2>
+                                 @item.Item1 : @DisplayAsPrice(item.Item2)
+                              </option>
+                           }
+                        }
+                     </select>
+                     <div>
+                        <span>
+                           Est. Shipping:
+                        </span>
+                        @if(Shipping==0){
+                           <span>6-8 Weeks.</span>
+                        }
+                        @if(Shipping==1299){
+                           <span>3-4 Weeks.</span>
+                        }
+                        @if(Shipping==3000){
+                           <span>7-8 Days.</span>
+                        }
+                     </div>
+                  </dd>
+                  <dt>
+                     Total :
+                  </dt>
+                  <dd>
+                     @DisplayAsPrice(Total+Shipping)
+                  </dd>
+               </dl>
+               <div class=cart-checkout>
+                  <a href="/checkout">
+                  <button class="button" type="button">Check Out</button>
+                  </a>
+               </div>
+            }
+            else{
+               <p>
+                  <h3>Your Cart is Empty. Why don't you look around and spend some money.</h3>
+               </p>
+               <a href="/">
+                  <h2>Go Shopping</h2>
+               </a>
+            }
+         }
+         else{
+            <p>
+               Something went wrong. No cart found.
+            </p>
+            <p>
+               Don't Panick, party on.
+            </p>
+            <a href="/">
+               <h2>Go Shopping</h2>
+            </a>
+         }
+      </div>
+   </div>
+</div>
+
+@code{
+   [CascadingParameter]
+   private string UserName{get;set;}="";
+   private Cart? TheCart=null;
+   private double Shipping=0;
+   private double SubTotal=0;
+   private double Discount=0;
+   private double Total=0;
+   private double TaxedAmmount=0;
+
+   private List<(string,int)> ShippingList=new List<(string,int)>(){
+      ("Premium",3000),
+      ("Regular",1299),
+      ("Free",0)
+   };
+
+   public void UpdateShipping(ChangeEventArgs e){
+      if(TheCart is not null && e is not null && e.Value is not null && e.Value.ToString() is not null){
+         var s =e.Value.ToString();
+         int ship=-1;
+         if(s is not null)ship=int.Parse(s);
+         else return;
+         TheCart.Shipping=ship;
+         Shipping=ship;
+         StateHasChanged();
+      }
+   }
+
+
+   private string DisplayAsPrice(double price){
+      string s=(price/100.0).ToString();
+      //Number ends in 00
+      if(s.IndexOf(".")==-1)s=s+".00";
+      //number ends in 0
+      else if(s.IndexOf(".")==s.Count()-2)s=s+"0"; 
+      return $"$ {s}";
+   }
+
+
+   private async Task GetCart(string user){
+      TheCart=await CartData.GetCart(user);
+      if(TheCart is not null){
+         var Totals=await TheCart.CartCost();
+         SubTotal=Totals.Item3;
+         Discount=Totals.Item1;
+         TaxedAmmount=Totals.Item1;
+         Total=(SubTotal-Discount)+TaxedAmmount;
+         Shipping=TheCart.Shipping;
+      }
+      StateHasChanged();
+   }
+
+   private async Task ResetCart(){
+      await Task.Run(()=>{
+         TheCart=null;
+         SubTotal=0;
+         Shipping=0;
+         Total=0;
+         Discount=0;
+      });
+      await ListUpdater.AddItem();
+      StateHasChanged();
+   }
+
+   public void Dispose(){
+      loginServices.LoginEvent-=GetCart;
+      loginServices.LogoutEvent-=ResetCart;
+
+   }
+
+   protected async override Task OnInitializedAsync(){
+      loginServices.LoginEvent+=GetCart;
+      loginServices.LogoutEvent+=ResetCart;
+      await GetCart(UserName);
+      @* if(TheCart is not null){
+         var Totals=await TheCart.CartCost();
+         SubTotal=Totals.Item1/100;
+         Discount=Totals.Item2;
+         Total=Totals.Item3;
+         Shipping=TheCart.Shipping;
+      } *@
+   }
+}

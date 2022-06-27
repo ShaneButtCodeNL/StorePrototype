@@ -1,0 +1,35 @@
+@using StorePrototype.Modals;
+@using StorePrototype.Data;
+@inject Accounts AccData;
+@if(account is not null){
+   <div class="account-details-container">
+      <div class="account-details">
+         <span>Name: @account.Name</span>
+         <span>AccNo: @account.AccountNumber</span>
+         <span>Bal: @account.Balance</span>
+      </div>
+      <label class="add-funds-label">Add Funds</label>
+      <form class="add-funds-form" id=@($"add-funds-to-acc-no-{account.AccountNumber}")>
+         <input class="add-funds-ammount" type="number" placeholder="$0.00" @bind=@AddFundsAmmount min=0 max=10000 tabindex=@((IsOut?"0":"-1")) />
+         <button class="add-funds-button" type="button" @onclick=@AddFunds tabindex=@((IsOut?"0":"-1")) >$</button>
+      </form>
+   </div>
+}
+
+@code{
+   [Parameter]
+   public Account? account{get;set;}
+   [Parameter]
+   public bool IsOut{get;set;}
+
+   private double AddFundsAmmount=0;
+
+   private void AddFunds(){
+      if(account is not null){
+         account.AddFunds(AddFundsAmmount);
+         AddFundsAmmount=0;
+      }
+   }
+
+
+}

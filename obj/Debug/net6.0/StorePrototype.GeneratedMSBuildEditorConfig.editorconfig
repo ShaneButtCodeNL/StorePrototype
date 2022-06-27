@@ -1,0 +1,92 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = StorePrototype
+build_property.RootNamespace = StorePrototype
+build_property.ProjectDir = E:\code\cSharp\StorePrototype\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = E:\code\cSharp\StorePrototype
+build_property._RazorSourceGeneratorDebug = 
+
+[E:/code/cSharp/StorePrototype/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/code/cSharp/StorePrototype/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/code/cSharp/StorePrototype/Components/AccountDetails.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBY2NvdW50RGV0YWlscy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-aj6dgro1vf
+
+[E:/code/cSharp/StorePrototype/Components/CartItem.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xDYXJ0SXRlbS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-zdrk89c7ar
+
+[E:/code/cSharp/StorePrototype/Components/Debug.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xEZWJ1Zy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-x6omlhi6fk
+
+[E:/code/cSharp/StorePrototype/Components/ItemControls.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xJdGVtQ29udHJvbHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-wj5wm4iq9o
+
+[E:/code/cSharp/StorePrototype/Components/LoadingEyes.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMb2FkaW5nRXllcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-037z7ebhd8
+
+[E:/code/cSharp/StorePrototype/Components/ReceiptItem.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSZWNlaXB0SXRlbS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-ntmyr6z7uj
+
+[E:/code/cSharp/StorePrototype/Components/ReceiptListItem.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSZWNlaXB0TGlzdEl0ZW0ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-x9u51mqpz8
+
+[E:/code/cSharp/StorePrototype/Components/StoreItemCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTdG9yZUl0ZW1DYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-ng4ns9x3zv
+
+[E:/code/cSharp/StorePrototype/Pages/CartPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FydFBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-6hqdt5m6ry
+
+[E:/code/cSharp/StorePrototype/Pages/CheckOut.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2hlY2tPdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-4emcgc7mws
+
+[E:/code/cSharp/StorePrototype/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-83egjlkezx
+
+[E:/code/cSharp/StorePrototype/Pages/ReceiptListPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVjZWlwdExpc3RQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-7srkwuj3yr
+
+[E:/code/cSharp/StorePrototype/Pages/ReceiptPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVjZWlwdFBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-a9o8wlx2ka
+
+[E:/code/cSharp/StorePrototype/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-8fxvn4wxet
+
+[E:/code/cSharp/StorePrototype/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/code/cSharp/StorePrototype/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/code/cSharp/StorePrototype/Pages/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0xheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 

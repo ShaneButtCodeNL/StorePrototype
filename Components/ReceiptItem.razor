@@ -1,0 +1,47 @@
+@using StorePrototype.Modals;
+@using StorePrototype.Data;
+@inject Carts CartData
+@inject StoreItems StoreItemsData
+
+@if(Item is not null){
+   <div id=@($"rec-item-display-{Item.ItemCode}") class="rec-item-display">
+      <div class="rec-item-display-left">
+         <img class="receipt-image" src=@($"{Item.ImageLocation}") alt=@($"Item: {Item.Name}") />
+      </div>
+      <div class="rec-item-display-right">
+         <p class="item-name">
+            @Item.Name
+         </p>
+         <p class="item-price">
+            @Price
+         </p>
+         <p class="item-count">
+            Count: @ItemCount
+         </p>
+      </div>
+   </div>
+}
+
+@code{
+   [Parameter]
+   public StoreItem? Item{get;set;}
+
+   [Parameter]
+   public int? ItemCount{get;set;}
+
+   public string Price="";
+
+   private string DisplayAsPrice(double price){
+      string s=(price/100.0).ToString();
+      //Number ends in 00
+      if(s.IndexOf(".")==-1)s=s+".00";
+      //number ends in 0
+      else if(s.IndexOf(".")==s.Count()-2)s=s+"0"; 
+      return $"$ {s}";
+   }
+   protected override void OnInitialized(){
+      if(Item is not null){
+         Price=DisplayAsPrice(Item.Price);
+      }
+   }
+}
